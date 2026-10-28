@@ -84,7 +84,11 @@ export function createCurtain({ reduced, zoom, dim, onUntie, onReveal, onOpened 
   }
 
   // ── pointer: pull a strand down ─────────────────────────────────────────────
+  // Paint the book underneath as soon as the guest reaches for the strings.
+  const uncover = () => document.documentElement.classList.remove('is-curtained');
+  pullBtn.addEventListener('focus', uncover);
   pullBtn.addEventListener('pointerdown', (e) => {
+    uncover();
     if (!ready || opened || e.button > 0) return;
     gsap.killTweensOf(pull);
     stopIdle();
@@ -124,6 +128,7 @@ export function createCurtain({ reduced, zoom, dim, onUntie, onReveal, onOpened 
   function open() {
     if (!ready || opened) return;
     opened = true;
+    uncover();
     idle?.kill();
     gsap.killTweensOf(pull);
     pullBtn.setAttribute('aria-disabled', 'true');

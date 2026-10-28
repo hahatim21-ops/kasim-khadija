@@ -8,9 +8,12 @@ const canSetVolume = (() => {
   try { const a = document.createElement('audio'); a.volume = 0.5; return a.volume === 0.5; } catch { return false; }
 })();
 
+/* global __HAS_MUSIC__ */
+const HAS_MUSIC = typeof __HAS_MUSIC__ === 'undefined' || __HAS_MUSIC__; // set at build time by vite.config.js
+
 export function createMusic(button) {
   const { src, volume = 0.6 } = CONFIG.music;
-  let missing = !src;
+  let missing = !src || !HAS_MUSIC;
   let state = 'off'; // off | playing | muted | blocked
   let resumeOnShow = false;
   let ctx = null;

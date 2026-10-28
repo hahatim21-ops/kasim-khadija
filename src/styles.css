@@ -137,6 +137,9 @@ button { font: inherit; color: inherit; }
   inset: 0;
   transform-origin: 50% 46%;
 }
+/* The book is fully under the curtain until the guest reaches for the strings; keeping it
+   unpainted until then also keeps the curtain as the page's first impression for LCP. */
+html.is-curtained .book .stage { visibility: hidden; }
 .pages {
   position: absolute;
   inset: 0;

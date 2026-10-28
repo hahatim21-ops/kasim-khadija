@@ -30,9 +30,10 @@ Handy preview switches (add to the URL):
 
 ## Replace the song
 
-Put the track at `public/audio/song.mp3` (≈2–3 min, 128 kbps is plenty). It starts when the guest
-pulls the strings, fades in to 60% volume, and loops. To use another file name or volume, edit
-`music` in `src/config.js`. If the file is missing, the music button simply stays hidden.
+Put the track at `public/audio/song.mp3` (≈2–3 min, 128 kbps is plenty), then commit and push. It
+starts when the guest pulls the strings, fades in to 60% volume, and loops. To use another file name or
+volume, edit `music` in `src/config.js`. The build only switches music on when the file exists, so
+until you add it there is no music button and no request for a missing file.
 
 ## Edit dates, venues and map links
 
