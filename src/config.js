@@ -1,6 +1,6 @@
 // Every editable value lives here — change content without touching the logic.
 export const CONFIG = {
-  siteUrl: 'https://REPLACE-AFTER-DEPLOY.vercel.app', // used for og:image absolute URL
+  siteUrl: 'https://kasim-khadija.vercel.app', // used for og:image absolute URL
   couple: 'Kasim & Khadija',
   timezone: 'Asia/Kolkata',
   nikah: {
