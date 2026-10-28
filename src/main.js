@@ -66,7 +66,6 @@ ui.dots.innerHTML = CONFIG.pages.map((p, i) =>
 const dots = [...ui.dots.children];
 dots.forEach((d, i) => d.addEventListener('click', () => book.goTo(i)));
 
-book.setup();
 if (import.meta.env.DEV) Object.assign(window, { gsap, ScrollTrigger, book }); // QA hooks, stripped from builds
 onLayout(() => {
   sparkles.resize();
@@ -142,6 +141,10 @@ function afterFirstPaint(timeout = 1500) {
 async function boot() {
   const bar = ui.loader.querySelector('.loader-line span');
   gsap.to(bar, { scaleX: 0.85, duration: 2.5, ease: 'power2.out' });
+
+  // The page-turn machinery (pin, timeline) is built in its own task, off the first paint's critical path.
+  await new Promise((r) => setTimeout(r, 0));
+  book.setup();
 
   // The curtain first (preloaded from <head>); nothing else competes for bandwidth.
   await decode(curtain.image);

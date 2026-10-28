@@ -22,11 +22,8 @@ export function createPageText(pageEls, { reduced }) {
     running[i] = null;
     shown[i] = false;
     for (const el of pages[i]) {
-      const s = STYLES[el.dataset.kind];
       el.classList.remove('is-written');
-      if (reduced) gsap.set(el, { autoAlpha: 0 });
-      else if (s.wipe) gsap.set(el, { autoAlpha: 1, '--wipe': '0%' });
-      else gsap.set(el, s.from);
+      gsap.set(el, { autoAlpha: 0, '--wipe': '0%' });
     }
   }
 
@@ -54,7 +51,8 @@ export function createPageText(pageEls, { reduced }) {
         continue;
       }
       if (s.wipe) {
-        tl.to(el, { '--wipe': '118%', duration: s.wipe, ease: kind === 'logo' ? 'sine.inOut' : 'power1.inOut' }, at)
+        tl.set(el, { autoAlpha: 1 }, at)
+          .fromTo(el, { '--wipe': '0%' }, { '--wipe': '118%', duration: s.wipe, ease: kind === 'logo' ? 'sine.inOut' : 'power1.inOut', immediateRender: false }, at)
           .add(() => el.classList.add('is-written'), at + s.wipe);
         if (kind === 'logo' && onLogo) tl.add(onLogo, at + s.wipe - 0.4);
       } else {
@@ -64,7 +62,7 @@ export function createPageText(pageEls, { reduced }) {
     }
   }
 
-  pages.forEach((_, i) => hide(i));
+  // Every line starts hidden through CSS (.tx), so nothing is written to the DOM at start-up.
   return {
     play,
     showNow,

@@ -175,13 +175,16 @@ html.is-curtained .book .stage { visibility: hidden; }
 }
 
 /* Printed lines, lifted off the artwork so they can animate in. */
+/* Starts hidden (written in by pagetext.js); script lines start fully masked. */
 .tx {
   position: absolute;
   height: auto;
   pointer-events: none;
   -webkit-user-select: none;
   user-select: none;
-  --wipe: 118%;
+  opacity: 0;
+  visibility: hidden;
+  --wipe: 0%;
 }
 /* Script is written left → right, Arabic (and the monogram) right → left, with a soft pen edge. */
 .tx--script {
