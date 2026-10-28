@@ -35,7 +35,7 @@ const ui = {
 const book = createBook({ reduced });
 const back = createBackCover(book.backSlot, {
   reduced,
-  onAgain: () => book.goTo(0, { duration: reduced ? 0.4 : 2.6 }),
+  onAgain: () => book.goTo(0, { duration: reduced ? 0.4 : 3.6 }),
 });
 const music = createMusic(ui.mute);
 const sparkles = createSparkles(ui.canvas, { reduced });
@@ -82,7 +82,8 @@ book.on('move', (t) => {
   if (!navigated && t > 0.02) {
     navigated = true;
     clearTimeout(hintTimer);
-    if (hintShown) gsap.to(ui.hint, { autoAlpha: 0, duration: 0.4 });
+    // overwrite: a fade-in still running must not bring the hint back after it has faded out
+    if (hintShown) gsap.to(ui.hint, { autoAlpha: 0, duration: 0.4, overwrite: true });
   }
 });
 book.on('arrive', (i) => {
@@ -104,7 +105,7 @@ function onOpened() {
   hintTimer = setTimeout(() => {
     if (navigated) return;
     hintShown = true;
-    gsap.to(ui.hint, { autoAlpha: 1, duration: 0.8, ease: 'sine.out' });
+    gsap.to(ui.hint, { autoAlpha: 1, duration: 0.8, ease: 'sine.out', overwrite: true });
   }, 800);
 }
 

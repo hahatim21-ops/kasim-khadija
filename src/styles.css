@@ -174,8 +174,7 @@ html.is-curtained .book .stage { visibility: hidden; }
   pointer-events: none;
 }
 
-/* Printed lines, lifted off the artwork so they can animate in. */
-/* Starts hidden (written in by pagetext.js); script lines start fully masked. */
+/* The cover monogram, lifted off the artwork so it can be written in (book.js intro). */
 .tx {
   position: absolute;
   height: auto;
@@ -186,12 +185,8 @@ html.is-curtained .book .stage { visibility: hidden; }
   visibility: hidden;
   --wipe: 0%;
 }
-/* Script is written left → right, Arabic (and the monogram) right → left, with a soft pen edge. */
-.tx--script {
-  -webkit-mask-image: linear-gradient(90deg, #000 calc(var(--wipe) - 18%), transparent var(--wipe));
-  mask-image: linear-gradient(90deg, #000 calc(var(--wipe) - 18%), transparent var(--wipe));
-}
-.tx--arabic, .tx--logo {
+/* Written right → left, as Arabic is, with a soft pen edge. */
+.tx--logo {
   -webkit-mask-image: linear-gradient(270deg, #000 calc(var(--wipe) - 18%), transparent var(--wipe));
   mask-image: linear-gradient(270deg, #000 calc(var(--wipe) - 18%), transparent var(--wipe));
 }
@@ -276,18 +271,20 @@ html.is-curtained .book .stage { visibility: hidden; }
   pointer-events: none;
 }
 /* The blank panel runs diagonally between the top-left and bottom-right florals,
-   so the block sits a little right of centre and below the top spray. */
+   so the block sits a little right of centre and below the top spray.
+   Everything inside is sized in --u (1% of the stage width), so the whole block keeps the same
+   proportions on every phone; the px floors only stop text getting unreadably small. */
 .bc {
   position: absolute;
-  left: 30%;
-  width: 48%;
-  top: 32.5%;
-  height: 28%;
+  left: 32.5%;
+  width: 45%;
+  top: 33.5%;
+  height: 29%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: calc(var(--u) * 2.4);
+  gap: calc(var(--u) * 2);
   text-align: center;
   pointer-events: auto;
   visibility: hidden;
@@ -295,25 +292,26 @@ html.is-curtained .book .stage { visibility: hidden; }
 .bc [hidden] { display: none !important; }
 .bc-label, .bc-done {
   margin: 0;
-  max-width: calc(var(--u) * 38);
+  max-width: 100%;
   color: var(--maroon-ink);
-  font-size: max(11px, calc(var(--u) * 2.4));
-  line-height: 1.55;
+  font-size: max(9px, calc(var(--u) * 2.45));
+  letter-spacing: 0.13em;
+  line-height: 1.4;
   text-wrap: balance;
   text-shadow: 0 1px 0 rgba(255, 238, 228, 0.35);
 }
-.bc-done { font-size: max(13px, calc(var(--u) * 3)); line-height: 1.6; }
+.bc-done { font-size: max(10px, calc(var(--u) * 2.8)); line-height: 1.6; }
 .bc-count {
   display: flex;
-  gap: calc(var(--u) * 1.6);
+  gap: calc(var(--u) * 1.4);
 }
 .bc-box {
   width: calc(var(--u) * 10);
-  padding: calc(var(--u) * 1.3) 0 calc(var(--u) * 1.1);
+  padding: calc(var(--u) * 1.2) 0 calc(var(--u) * 1);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: calc(var(--u) * 0.6);
+  gap: calc(var(--u) * 0.5);
   background: rgba(246, 230, 220, 0.75);
   border: 1px solid var(--gold);
   border-radius: calc(var(--u) * 1.6);
@@ -326,51 +324,62 @@ html.is-curtained .book .stage { visibility: hidden; }
   width: 100%;
   height: 1.05em;
   overflow: hidden;
-  font-size: calc(var(--u) * 5.6);
+  font-size: calc(var(--u) * 5.4);
   font-weight: 600;
   line-height: 1.05;
   font-variant-numeric: lining-nums tabular-nums;
 }
 .bc-num > span { position: absolute; inset: 0; text-align: center; }
 .bc-unit {
-  font-size: max(9.5px, calc(var(--u) * 1.95));
+  font-size: max(7px, calc(var(--u) * 1.7));
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.1em;
 }
 .bc-maps {
   display: flex;
   flex-direction: column;
-  gap: calc(var(--u) * 1.6);
+  align-items: center;
+  gap: calc(var(--u) * 1.4);
   width: 100%;
 }
+/* Map buttons: pin + two short lines (event, venue). */
 .pill {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.55em;
-  min-height: max(38px, calc(var(--u) * 7.8));
-  padding: 0 0.9em;
+  gap: calc(var(--u) * 1.4);
+  width: 88%;
+  min-height: max(34px, calc(var(--u) * 8.6));
+  padding: calc(var(--u) * 0.9) calc(var(--u) * 3);
   border-radius: 999px;
   background: rgba(246, 230, 220, 0.9);
   border: 1px solid var(--gold);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 2px 6px rgba(110, 47, 47, 0.14);
   color: var(--maroon);
-  font-size: max(10px, calc(var(--u) * 2));
-  letter-spacing: 0.13em;
   text-decoration: none;
+}
+.pill .pin { width: calc(var(--u) * 2.9); height: calc(var(--u) * 2.9); min-width: 11px; min-height: 11px; flex: none; color: var(--gold); }
+.pill-text { display: flex; flex-direction: column; align-items: center; line-height: 1.25; }
+.pill-event {
+  font-size: max(7.5px, calc(var(--u) * 1.6));
+  letter-spacing: 0.24em;
+  color: #8a4d45;
+}
+.pill-venue {
+  font-size: max(9px, calc(var(--u) * 2.15));
+  letter-spacing: 0.12em;
   white-space: nowrap;
 }
-.pill .pin { width: 1.45em; height: 1.45em; flex: none; color: var(--gold); }
 .pill:active { background: var(--cream); }
 .bc-again {
-  min-height: 36px;
-  padding: 4px 12px;
+  min-height: 30px;
+  padding: 2px 12px;
   border: 0;
   border-radius: 999px;
   background: none;
   color: var(--maroon-ink);
-  font-size: max(10.5px, calc(var(--u) * 2.15));
+  font-size: max(9.5px, calc(var(--u) * 2.1));
   text-decoration: underline;
   text-decoration-color: var(--gold);
   text-decoration-thickness: 1px;
@@ -485,20 +494,23 @@ html.is-curtained .book .stage { visibility: hidden; }
   pointer-events: none;
 }
 
+/* Page indicator: a row of pearls along the bottom, below the book, so it never sits on the
+   printed text however much of the artwork's sides a phone trims. */
 .dots {
   position: absolute;
-  right: calc(4px + env(safe-area-inset-right));
-  top: 50%;
-  margin-top: -88px;
+  left: 0;
+  right: 0;
+  bottom: calc(6px + env(safe-area-inset-bottom));
+  width: max-content;
+  margin: 0 auto;
   display: flex;
-  flex-direction: column;
   pointer-events: auto;
   opacity: 0;
   visibility: hidden;
 }
 .dot {
-  width: 24px;
-  height: 25px;
+  width: 22px;
+  height: 26px;
   padding: 0;
   border: 0;
   background: none;
@@ -527,7 +539,7 @@ html.is-curtained .book .stage { visibility: hidden; }
   position: absolute;
   left: 0;
   right: 0;
-  bottom: calc(18px + env(safe-area-inset-bottom));
+  bottom: calc(40px + env(safe-area-inset-bottom)); /* above the pearl row */
   width: max-content;
   margin: 0 auto;
   padding: 0.75em 1.5em 0.35em;

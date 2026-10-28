@@ -1,9 +1,10 @@
 // One-time image optimisation: assets-src/* → public/images/*
 // Run with `npm run images`. Re-run whenever the artwork in assets-src changes.
 //
-// Book pages are split into a text-free "plate" plus one transparent layer per line of text
-// (see scripts/extract-text.mjs and the measurements in scripts/page-layout.mjs), so the text
-// can be animated and only the paper page turns.
+// scripts/page-layout.mjs says which part of each page turns (the "leaf"). Pages with animated
+// marks (only the cover monogram) are split into a "plate" without them plus a transparent layer
+// for each mark (see scripts/extract-text.mjs); every other page is used exactly as printed.
+// public/images is rebuilt from scratch on every run.
 import sharp from 'sharp';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -23,11 +24,12 @@ const MAP = {
   '00-curtain': 'Curtain 1.JPG.jpeg',
   '01-cover': '2.JPG.jpeg',
   '02-bismillah': '3.JPG.jpeg',
-  '03-invitation': 'Khadija  Kasim - 4.JPG.jpeg',
-  '04-nikah': 'Khadija  Kasim - 5.JPG.jpeg',
-  '05-reception': 'Khadija  Kasim - 6.JPG.jpeg',
-  '06-awaiting': '7.JPG.jpeg',
-  '07-back-cover': '8.PNG',
+  '03-duniya': 'fid-duniya-wal-akhirah.jpg',
+  '04-invitation': 'Khadija  Kasim - 4.JPG.jpeg',
+  '05-nikah': 'Khadija  Kasim - 5.JPG.jpeg',
+  '06-reception': 'Khadija  Kasim - 6.JPG.jpeg',
+  '07-awaiting': '7.JPG.jpeg',
+  '08-back-cover': '8.PNG',
 };
 const STRANDS = 'pearl-strands.png';
 
@@ -59,14 +61,16 @@ async function master(file) {
 }
 
 async function main() {
+  fs.rmSync(OUT, { recursive: true, force: true }); // no stale files from renamed pages
   fs.mkdirSync(path.join(OUT, 'text'), { recursive: true });
   if (DEBUG) fs.mkdirSync(DEBUG, { recursive: true });
   const manifest = {};
   let total = 0;
 
-  // Split every book page into plate + text layers first: grouped pages refill each other.
+  // Split pages with animated marks into plate + layers first: grouped pages refill each other.
   const pages = {};
   for (const [name, layout] of Object.entries(PAGE_LAYOUT)) {
+    if (!layout.text?.length) continue;
     const rgb = await master(MAP[name]);
     pages[name] = { rgb, layout, ...analysePage(rgb, MASTER.w, MASTER.h, layout) };
   }
@@ -103,11 +107,11 @@ async function main() {
       .blur(1.2).jpeg({ quality: 70 }).toFile(path.join(OUT, `${name}-blur.jpg`));
 
     manifest[name] = { widths: [...new Set([small, medium, large])] };
+    if (PAGE_LAYOUT[name]) manifest[name].leaf = PAGE_LAYOUT[name].leaf;
     total += L.buf.length;
     let textBytes = 0;
 
     if (page) {
-      manifest[name].leaf = page.layout.leaf;
       manifest[name].text = [];
       for (const [n, line] of page.lines.entries()) {
         if (!line.bbox) { console.warn(`  ! ${name} line ${n}: no ink found`); continue; }
@@ -125,13 +129,13 @@ async function main() {
       }
       if (DEBUG) await writeDebug(name, page);
     }
-    console.log(`${name.padEnd(14)} ${large}w q${L.quality} ${kb(L.buf.length).padStart(7)} | ${medium}w ${kb(M.buf.length).padStart(7)} | ${small}w ${kb(S.buf.length).padStart(7)} | jpg ${kb(jpg.length).padStart(7)}${page ? ` | ${page.lines.length} text layers ${kb(textBytes)}` : ''}`);
+    console.log(`${name.padEnd(14)} ${large}w q${L.quality} ${kb(L.buf.length).padStart(7)} | ${medium}w ${kb(M.buf.length).padStart(7)} | ${small}w ${kb(S.buf.length).padStart(7)} | jpg ${kb(jpg.length).padStart(7)}${page ? ` | ${page.lines.length} animated layer(s) ${kb(textBytes)}` : ''}`);
     total += textBytes;
   }
 
   manifest.strands = await makeStrands();
   fs.writeFileSync(MANIFEST, JSON.stringify(manifest, null, 2) + '\n');
-  console.log(`\nLarge WebP payload incl. text layers: ${kb(total)} (budget 3072 KB)`);
+  console.log(`\nLarge WebP payload incl. animated layers: ${kb(total)} (budget 3072 KB)`);
 
   await makeOgImage();
   await makeIcons();

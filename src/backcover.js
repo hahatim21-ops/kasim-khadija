@@ -11,6 +11,13 @@ const UNITS = [
 
 const PIN = '<svg class="pin" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.5s-6.5-6.2-6.5-11.4A6.5 6.5 0 0 1 12 3.6a6.5 6.5 0 0 1 6.5 6.5c0 5.2-6.5 11.4-6.5 11.4z" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="10.2" r="2.3" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>';
 
+// Map button: "Event · Venue" from the config, shown as two short lines so it fits narrow phones.
+function pillHTML({ label, mapUrl }) {
+  const [event, venue = ''] = label.split(' · ');
+  return `<a class="pill" href="${mapUrl}" target="_blank" rel="noopener" aria-label="${label}: open in Google Maps">${PIN}`
+    + `<span class="pill-text"><span class="pill-event ui-caps">${event}</span><span class="pill-venue ui-caps">${venue}</span></span></a>`;
+}
+
 // `?now=2026-12-10T19:00:00+05:30` previews other countdown states.
 function clockOffset() {
   const raw = new URLSearchParams(location.search).get('now');
@@ -38,10 +45,7 @@ export function createBackCover(slot, { reduced, onAgain }) {
         </div>`).join('')}
       </div>
       <p class="bc-done ui-caps" hidden>${countdown.doneMessage}</p>
-      <div class="bc-maps">
-        <a class="pill ui-caps" href="${nikah.mapUrl}" target="_blank" rel="noopener">${PIN}<span>${nikah.label}</span></a>
-        <a class="pill ui-caps" href="${reception.mapUrl}" target="_blank" rel="noopener">${PIN}<span>${reception.label}</span></a>
-      </div>
+      <div class="bc-maps">${[nikah, reception].map(pillHTML).join('')}</div>
       <button type="button" class="bc-again ui-caps"><span aria-hidden="true">↺</span> ${countdown.againLabel}</button>
     </div>`;
 

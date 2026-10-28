@@ -3,18 +3,20 @@
 // by driving the scroll position ourselves, so the page follows the finger and always
 // comes to rest flat on a page.
 //
-// Each page is two layers of the same (text-free) artwork: the background, with a hole where
-// the paper page sits, and the "leaf" — just the paper page (or cover board), hinged at the
-// spine — which carries the animated text and is the only thing that turns.
+// Each page is two layers of the same artwork: the background, with a hole where the paper
+// page sits, and the "leaf" — just the paper page (or cover board), hinged at the spine —
+// which is the only thing that turns. Text turns with its page exactly as printed; the one
+// animated mark is the cover monogram, written in after the curtain opens.
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { CONFIG } from './config.js';
 import manifest from './images.json';
 import { pictureHTML, loadPicture } from './stage.js';
-import { createPageText } from './pagetext.js';
 
 const VISIBLE = 0.84; // share of a flip spent on 0° → -90°; the back half happens off-stage
 const PERSPECTIVE = 1800;
+const SCRUB = 0.8; // seconds the page lags behind the finger / scroll position (softens the motion)
+const FINGER_PER_PAGE = 0.62; // share of the screen height a finger travels to turn one page
 const clamp = (min, max, v) => Math.min(max, Math.max(min, v));
 
 // The background keeps everything except the leaf: a rectangle with a rectangular hole.
@@ -76,7 +78,6 @@ export function createBook({ reduced }) {
   const lazy = [...root.querySelectorAll('.page img')]; // backgrounds, leaves and text layers
   const zoom = root.querySelector('.book-zoom');
   const dim = root.querySelector('.dim');
-  const text = createPageText(pages, { reduced });
   if (!reduced) gsap.set(zoom, { scale: 1.08 });
 
   let tl, st;
@@ -86,7 +87,6 @@ export function createBook({ reduced }) {
   let navTween = null;
   let atRest = true;
   let lastRest = 0;
-  let lastTop = 0;
   const handlers = { arrive: [], depart: [], move: [] };
   const emit = (type, v) => handlers[type].forEach((fn) => fn(v));
 
@@ -156,19 +156,12 @@ export function createBook({ reduced }) {
       });
       placeCast(top, turning);
     }
-    // Passing over a page without stopping (a jump via the pearls): it turns with its text printed.
-    if (top !== lastTop) {
-      lastTop = top;
-      if (turning) text.showNow(top);
-    }
     emit('move', t);
     const r = Math.round(t);
     if (Math.abs(t - r) < 1e-3) {
       if (!atRest || r !== lastRest) {
         atRest = true;
         lastRest = r;
-        text.resetAfter(r);
-        if (r > 0) text.play(r);
         emit('arrive', r);
       }
     } else if (atRest && Math.abs(t - lastRest) > 0.01) {
@@ -191,7 +184,7 @@ export function createBook({ reduced }) {
     navTween = null;
     if (Math.abs(to - from) < 1) { window.scrollTo(0, to); return; }
     const weight = Math.min(position(), i) < 1 ? 1.2 : 1; // the cover is heavier
-    const d = duration ?? (reduced ? 0.4 : Math.min(3.2, (0.55 + 0.55 * dist) * weight));
+    const d = duration ?? (reduced ? 0.4 : Math.min(4.2, (0.8 + 0.75 * dist) * weight));
     const proxy = { y: from };
     navTween = gsap.to(proxy, {
       y: to, duration: d, ease,
@@ -221,8 +214,8 @@ export function createBook({ reduced }) {
       touch.moved = true;
       dragging = true;
     }
-    // Half a screen of finger travel turns one full page; never more than one page per gesture.
-    const k = (st.end - st.start) / N / (window.innerHeight * 0.5);
+    // About two-thirds of the screen of finger travel turns one full page; never more than one page per gesture.
+    const k = (st.end - st.start) / N / (window.innerHeight * FINGER_PER_PAGE);
     const lo = scrollFor(Math.max(0, touch.base - 1));
     const hi = scrollFor(Math.min(N, touch.base + 1));
     window.scrollTo(0, clamp(lo, hi, touch.s0 + dy * k));
@@ -278,15 +271,23 @@ export function createBook({ reduced }) {
     step(dir);
   }
 
-  // ── cover intro: the monogram is written in, then a glint crosses the oval ─────
+  // ── cover intro: the monogram is written in right → left, then a glint crosses the oval ──
+  let introPlayed = false;
   function intro() {
+    const logo = leaves[0]?.querySelector('.tx--logo');
     const glint = leaves[0]?.querySelector('.glint > i');
-    text.play(0, {
-      onLogo: () => {
-        if (reduced || !glint) return;
-        gsap.fromTo(glint, { xPercent: -120, opacity: 1 }, { xPercent: 120, duration: 1.5, ease: 'sine.inOut', onComplete: () => gsap.set(glint, { opacity: 0 }) });
-      },
-    });
+    if (!logo || introPlayed) return;
+    introPlayed = true;
+    if (reduced) {
+      gsap.to(logo, { autoAlpha: 1, '--wipe': '118%', duration: 0.6 });
+      return;
+    }
+    gsap.timeline()
+      .set(logo, { autoAlpha: 1 }, 0.15)
+      .fromTo(logo, { '--wipe': '0%' }, { '--wipe': '118%', duration: 2.4, ease: 'sine.inOut', immediateRender: false }, 0.15)
+      .add(() => logo.classList.add('is-written'), 2.55)
+      .fromTo(glint, { xPercent: -120, opacity: 1 }, { xPercent: 120, duration: 1.5, ease: 'sine.inOut', immediateRender: false }, 2.15)
+      .set(glint, { opacity: 0 });
   }
 
   // ── public ──────────────────────────────────────────────────────────────────
@@ -297,7 +298,7 @@ export function createBook({ reduced }) {
       start: 'top top',
       end: () => `+=${window.innerHeight * N}`,
       pin: true,
-      scrub: reduced ? true : 0.6,
+      scrub: reduced ? true : SCRUB,
       animation: tl,
     });
     // Snap safety net for native scrolling (scrollbar, find-in-page, assistive tech). Gestures are
@@ -306,11 +307,14 @@ export function createBook({ reduced }) {
     ScrollTrigger.addEventListener('scrollEnd', () => {
       if (!enabled || dragging || navTween) return;
       const p = position();
-      if (Math.abs(p - Math.round(p)) > 0.002) goTo(Math.round(p), { duration: reduced ? 0.4 : 0.7 });
+      if (Math.abs(p - Math.round(p)) > 0.002) goTo(Math.round(p), { duration: reduced ? 0.4 : 1 });
     });
     ScrollTrigger.addEventListener('refresh', () => {
       stageW = pages[0].offsetWidth;
       if (!dragging && !navTween) window.scrollTo(0, scrollFor(index));
+      // A refresh can move the timeline without an update event; re-check the resting page
+      // (layers, back-cover overlay) once the scrub has caught up.
+      gsap.delayedCall(SCRUB + 0.2, sync);
     });
     sync();
 
@@ -335,7 +339,7 @@ export function createBook({ reduced }) {
     setup,
     goTo,
     intro,
-    // Cover first (high priority, earliest in the DOM), then the pages and their text.
+    // Cover first (high priority, earliest in the DOM), then the pages and the monogram layer.
     load() {
       lazy.forEach((img) => {
         if (img.classList.contains('tx')) { img.src = img.dataset.src; img.removeAttribute('data-src'); } else loadPicture(img);

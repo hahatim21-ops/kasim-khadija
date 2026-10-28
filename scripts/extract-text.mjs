@@ -3,6 +3,12 @@
 //   • one transparent layer per line, cut from the original pixels.
 // Plate + all layers composited back together reproduce the original exactly.
 // Works on raw RGB buffers at the 1080×1920 master size.
+//
+// Extra line options (see page-layout.mjs for the basics):
+//   minRG   – require red to exceed green by this much (keeps green leaves out of pink ink);
+//   exclude – rectangles inside the box to ignore (florals reaching into it);
+//   group   – pages sharing a name have an identical background and refill each other's holes.
+// Boxes may overlap: ink caught by two lines is identical in both layers.
 
 const lum = (b, i) => 0.2126 * b[i] + 0.7152 * b[i + 1] + 0.0722 * b[i + 2];
 
