@@ -1,13 +1,10 @@
 // 9:16 "cover" stage sizing. Every artwork layer and overlay sits in a stage of the
 // same size, so anything positioned in % of the stage stays locked to the artwork.
 import manifest from './images.json';
+import { DESKTOP_MIN, FRAME_MAX_W, SIZES } from './sizes.js';
 
 const RATIO = 9 / 16;
 const MAX_CROP = 0.1; // never crop more than 10% of the artwork per side
-const DESKTOP_MIN = 601; // wider than this: framed, phone-sized stage
-const FRAME_MAX_W = 460;
-
-export const SIZES = `(min-width: ${DESKTOP_MIN}px) ${FRAME_MAX_W}px, 56.25vh`;
 
 let layout = null;
 const listeners = new Set();
@@ -69,14 +66,16 @@ export const onLayout = (fn) => listeners.add(fn);
 
 // <picture> markup for one artwork: WebP srcset + JPEG fallback. `deferred` pictures keep their
 // URLs in data-* attributes until loadPicture() is called, so they never compete with the curtain.
+// File names carry a content fingerprint (see scripts/optimize-images.mjs), so they come from the manifest.
+export const srcsetFor = (id) => manifest[id].widths.map((w) => `${manifest[id].files[w]} ${w}w`).join(', ');
+
 export function pictureHTML(id, alt, { priority = 'low', deferred = false } = {}) {
   const widths = manifest[id].widths;
   const big = widths[widths.length - 1];
-  const srcset = widths.map((w) => `/images/${id}-${w}.webp ${w}w`).join(', ');
   const d = deferred ? 'data-' : '';
   return `<picture class="art">` +
-    `<source type="image/webp" ${d}srcset="${srcset}" sizes="${SIZES}">` +
-    `<img ${d}src="/images/${id}-${big}.jpg" alt="${alt.replace(/"/g, '&quot;')}" width="${big}" height="${Math.round(big / RATIO)}"` +
+    `<source type="image/webp" ${d}srcset="${srcsetFor(id)}" sizes="${SIZES}">` +
+    `<img ${d}src="${manifest[id].jpg}" alt="${alt.replace(/"/g, '&quot;')}" width="${big}" height="${Math.round(big / RATIO)}"` +
     ` decoding="async" fetchpriority="${priority}" draggable="false">` +
     `</picture>`;
 }
@@ -87,4 +86,4 @@ export function loadPicture(img) {
   if (img.dataset.src) { img.src = img.dataset.src; delete img.dataset.src; }
 }
 
-export const blurURL = (id) => `/images/${id}-blur.jpg`;
+export const blurURL = (id) => manifest[id].blur;

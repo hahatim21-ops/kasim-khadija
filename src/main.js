@@ -78,6 +78,10 @@ let hintShown = false;
 let hintTimer = 0;
 let navigated = false;
 
+// The countdown appears as soon as the back cover is revealed (the last page is ~80% turned),
+// not once the turn has fully settled; the gap between the two limits stops it flickering.
+const BACK_SHOW = 0.4, BACK_HIDE = 0.55;
+
 book.on('move', (t) => {
   if (!navigated && t > 0.02) {
     navigated = true;
@@ -85,15 +89,13 @@ book.on('move', (t) => {
     // overwrite: a fade-in still running must not bring the hint back after it has faded out
     if (hintShown) gsap.to(ui.hint, { autoAlpha: 0, duration: 0.4, overwrite: true });
   }
+  if (t >= book.N - BACK_SHOW) back.show();
+  else if (t < book.N - BACK_HIDE) back.hide();
 });
 book.on('arrive', (i) => {
   dots.forEach((d, j) => (j === i ? d.setAttribute('aria-current', 'true') : d.removeAttribute('aria-current')));
   setBackdrop(CONFIG.pages[i].id);
   if (!reduced && opened) shimmer(book.shimmer);
-  if (i === book.N) back.show();
-});
-book.on('depart', (i) => {
-  if (i === book.N) back.hide();
 });
 
 function onOpened() {

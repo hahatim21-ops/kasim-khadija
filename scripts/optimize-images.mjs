@@ -6,6 +6,7 @@
 // for each mark (see scripts/extract-text.mjs); every other page is used exactly as printed.
 // public/images is rebuilt from scratch on every run.
 import sharp from 'sharp';
+import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -55,6 +56,16 @@ async function webpUnderBudget(input, w, q, maxBytes) {
 
 const rawImage = (buf) => sharp(buf, { raw: { width: MASTER.w, height: MASTER.h, channels: 3 } });
 
+// Writes a file under public/images with a fingerprint of its contents in the name
+// (02-bismillah-900.1a2b3c4d.webp), so a changed image always gets a new URL and phones never
+// keep showing a stale cached copy. Returns the public URL.
+function save(rel, buf) {
+  const hash = crypto.createHash('sha1').update(buf).digest('hex').slice(0, 8);
+  const file = rel.replace(/(\.[a-z]+)$/, `.${hash}$1`);
+  fs.writeFileSync(path.join(OUT, file), buf);
+  return `/images/${file}`;
+}
+
 async function master(file) {
   return sharp(path.join(SRC, file)).rotate().resize(MASTER.w, MASTER.h, { fit: 'cover' })
     .removeAlpha().raw().toBuffer();
@@ -94,19 +105,23 @@ async function main() {
       ? () => rawImage(Buffer.from(page.plate.buffer))
       : () => sharp(input).rotate();
 
+    const files = {};
     const L = await webpUnderBudget(src, large, LARGE.q, LARGE.maxBytes);
-    fs.writeFileSync(path.join(OUT, `${name}-${large}.webp`), L.buf);
+    files[large] = save(`${name}-${large}.webp`, L.buf);
     const M = await webpUnderBudget(src, medium, MEDIUM.q);
-    fs.writeFileSync(path.join(OUT, `${name}-${medium}.webp`), M.buf);
+    files[medium] = save(`${name}-${medium}.webp`, M.buf);
     const S = await webpUnderBudget(src, small, SMALL.q);
-    fs.writeFileSync(path.join(OUT, `${name}-${small}.webp`), S.buf);
+    files[small] = save(`${name}-${small}.webp`, S.buf);
     const jpg = await src().resize(large, h169(large), { fit: 'cover' }).jpeg({ quality: JPEG_Q, mozjpeg: true }).toBuffer();
-    fs.writeFileSync(path.join(OUT, `${name}-${large}.jpg`), jpg);
+    const blur = await sharp(input).rotate().resize(BLUR_W, h169(BLUR_W), { fit: 'cover' })
+      .blur(1.2).jpeg({ quality: 70 }).toBuffer();
 
-    await sharp(input).rotate().resize(BLUR_W, h169(BLUR_W), { fit: 'cover' })
-      .blur(1.2).jpeg({ quality: 70 }).toFile(path.join(OUT, `${name}-blur.jpg`));
-
-    manifest[name] = { widths: [...new Set([small, medium, large])] };
+    manifest[name] = {
+      widths: [...new Set([small, medium, large])],
+      files,
+      jpg: save(`${name}-${large}.jpg`, jpg),
+      blur: save(`${name}-blur.jpg`, blur),
+    };
     if (PAGE_LAYOUT[name]) manifest[name].leaf = PAGE_LAYOUT[name].leaf;
     total += L.buf.length;
     let textBytes = 0;
@@ -118,12 +133,10 @@ async function main() {
         const { buf, w, h } = lineLayer(page.rgb, MASTER.w, line);
         const out = await sharp(buf, { raw: { width: w, height: h, channels: 4 } })
           .webp({ quality: 88, alphaQuality: 90, effort: 6 }).toBuffer();
-        const rel = `text/${name}-${n}.webp`;
-        fs.writeFileSync(path.join(OUT, rel), out);
         textBytes += out.length;
         const [x0, y0] = line.bbox;
         manifest[name].text.push({
-          src: `/images/${rel}`, w, h, kind: line.kind,
+          src: save(`text/${name}-${n}.webp`, out), w, h, kind: line.kind,
           x: pct(x0, MASTER.w), y: pct(y0, MASTER.h), width: pct(w, MASTER.w),
         });
       }
@@ -176,8 +189,7 @@ async function makeStrands() {
     const buf = await sharp({ create: { width, height, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } } })
       .composite([{ input: shadow, left: 3, top: 6 }, { input: strand, left: 0, top: 0 }])
       .webp({ quality: 90, alphaQuality: 95, effort: 6 }).toBuffer();
-    fs.writeFileSync(path.join(OUT, `strand-${side}.webp`), buf);
-    out[side] = { src: `/images/strand-${side}.webp`, w: width, h: height };
+    out[side] = { src: save(`strand-${side}.webp`, buf), w: width, h: height };
     console.log(`strand-${side}.webp    ${width}×${height} ${kb(buf.length)}`);
   }
   return out;

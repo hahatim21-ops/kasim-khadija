@@ -24,10 +24,11 @@
   <meta name="twitter:description" content="You're invited to the Nikah &amp; Reception of Kasim &amp; Khadija · 10–11 December · Mumbai">
   <meta name="twitter:image" content="__SITE_URL__/og-image.jpg">
 
-  <!-- First impression: the curtain loads before anything else; the cover follows as soon as it is painted -->
+  <!-- First impression: the curtain loads before anything else; the cover follows as soon as it is painted.
+       The srcset (fingerprinted file names) is filled in from src/images.json by vite.config.js. -->
   <link rel="preload" as="image" type="image/webp" fetchpriority="high"
-        imagesrcset="/images/00-curtain-720.webp 720w, /images/00-curtain-900.webp 900w, /images/00-curtain-1080.webp 1080w"
-        imagesizes="(min-width: 601px) 460px, 56.25vh">
+        imagesrcset="__CURTAIN_SRCSET__"
+        imagesizes="__IMAGE_SIZES__">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

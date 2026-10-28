@@ -4,7 +4,14 @@
       720,
       900,
       1080
-    ]
+    ],
+    "files": {
+      "720": "/images/00-curtain-720.843b332d.webp",
+      "900": "/images/00-curtain-900.6da544ea.webp",
+      "1080": "/images/00-curtain-1080.20891831.webp"
+    },
+    "jpg": "/images/00-curtain-1080.0bf4a034.jpg",
+    "blur": "/images/00-curtain-blur.ab4ce5dc.jpg"
   },
   "01-cover": {
     "widths": [
@@ -12,6 +19,13 @@
       900,
       1080
     ],
+    "files": {
+      "720": "/images/01-cover-720.9b4638a1.webp",
+      "900": "/images/01-cover-900.ad396f2e.webp",
+      "1080": "/images/01-cover-1080.774aa6cb.webp"
+    },
+    "jpg": "/images/01-cover-1080.18cb1250.jpg",
+    "blur": "/images/01-cover-blur.4bd0dd50.jpg",
     "leaf": [
       15.2,
       14.5,
@@ -20,7 +34,7 @@
     ],
     "text": [
       {
-        "src": "/images/text/01-cover-0.webp",
+        "src": "/images/text/01-cover-0.103e2ba2.webp",
         "w": 267,
         "h": 338,
         "kind": "logo",
@@ -36,6 +50,13 @@
       900,
       1080
     ],
+    "files": {
+      "720": "/images/02-bismillah-720.e748bd95.webp",
+      "900": "/images/02-bismillah-900.0a1fbe5a.webp",
+      "1080": "/images/02-bismillah-1080.da87d019.webp"
+    },
+    "jpg": "/images/02-bismillah-1080.49c3d7eb.jpg",
+    "blur": "/images/02-bismillah-blur.cb9a27d1.jpg",
     "leaf": [
       7.4,
       13.7,
@@ -49,6 +70,13 @@
       900,
       1080
     ],
+    "files": {
+      "720": "/images/03-duniya-720.172be2b7.webp",
+      "900": "/images/03-duniya-900.bdeb64e5.webp",
+      "1080": "/images/03-duniya-1080.11505510.webp"
+    },
+    "jpg": "/images/03-duniya-1080.e1fe828b.jpg",
+    "blur": "/images/03-duniya-blur.a5c9c015.jpg",
     "leaf": [
       7.4,
       13.7,
@@ -62,6 +90,13 @@
       900,
       1080
     ],
+    "files": {
+      "720": "/images/04-invitation-720.547ae3f4.webp",
+      "900": "/images/04-invitation-900.5a59060b.webp",
+      "1080": "/images/04-invitation-1080.d775c90c.webp"
+    },
+    "jpg": "/images/04-invitation-1080.831ce04e.jpg",
+    "blur": "/images/04-invitation-blur.23140df1.jpg",
     "leaf": [
       5.5,
       11.2,
@@ -75,6 +110,13 @@
       900,
       1080
     ],
+    "files": {
+      "720": "/images/05-nikah-720.200b906b.webp",
+      "900": "/images/05-nikah-900.87fcc101.webp",
+      "1080": "/images/05-nikah-1080.976e436e.webp"
+    },
+    "jpg": "/images/05-nikah-1080.98788e1a.jpg",
+    "blur": "/images/05-nikah-blur.a0fe14fd.jpg",
     "leaf": [
       5.5,
       11.2,
@@ -88,6 +130,13 @@
       900,
       1080
     ],
+    "files": {
+      "720": "/images/06-reception-720.09e0a237.webp",
+      "900": "/images/06-reception-900.f18440c3.webp",
+      "1080": "/images/06-reception-1080.2a8d08dc.webp"
+    },
+    "jpg": "/images/06-reception-1080.b478503e.jpg",
+    "blur": "/images/06-reception-blur.32ea6212.jpg",
     "leaf": [
       5.5,
       11.2,
@@ -101,6 +150,13 @@
       900,
       1080
     ],
+    "files": {
+      "720": "/images/07-awaiting-720.ade62169.webp",
+      "900": "/images/07-awaiting-900.6fb16485.webp",
+      "1080": "/images/07-awaiting-1080.d5fbb4cf.webp"
+    },
+    "jpg": "/images/07-awaiting-1080.8a6fc124.jpg",
+    "blur": "/images/07-awaiting-blur.1c958279.jpg",
     "leaf": [
       7.4,
       13.7,
@@ -113,16 +169,23 @@
       720,
       900,
       941
-    ]
+    ],
+    "files": {
+      "720": "/images/08-back-cover-720.c2c5e801.webp",
+      "900": "/images/08-back-cover-900.1efc0299.webp",
+      "941": "/images/08-back-cover-941.e1bdf193.webp"
+    },
+    "jpg": "/images/08-back-cover-941.27d77bea.jpg",
+    "blur": "/images/08-back-cover-blur.09e7a937.jpg"
   },
   "strands": {
     "l": {
-      "src": "/images/strand-l.webp",
+      "src": "/images/strand-l.c5a4a8d2.webp",
       "w": 126,
       "h": 1350
     },
     "r": {
-      "src": "/images/strand-r.webp",
+      "src": "/images/strand-r.2ca52980.webp",
       "w": 126,
       "h": 1349
     }

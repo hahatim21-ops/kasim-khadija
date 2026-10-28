@@ -8,8 +8,10 @@ const canSetVolume = (() => {
   try { const a = document.createElement('audio'); a.volume = 0.5; return a.volume === 0.5; } catch { return false; }
 })();
 
-/* global __HAS_MUSIC__ */
-const HAS_MUSIC = typeof __HAS_MUSIC__ === 'undefined' || __HAS_MUSIC__; // set at build time by vite.config.js
+/* global __HAS_MUSIC__, __MUSIC_VERSION__ */
+// Both set at build time by vite.config.js.
+const HAS_MUSIC = typeof __HAS_MUSIC__ === 'undefined' || __HAS_MUSIC__;
+const VERSION = typeof __MUSIC_VERSION__ === 'undefined' ? '' : __MUSIC_VERSION__;
 
 export function createMusic(button) {
   const { src, volume = 0.6 } = CONFIG.music;
@@ -28,7 +30,8 @@ export function createMusic(button) {
     audio.addEventListener('error', () => { if (audio.getAttribute('src')) { missing = true; render(); } });
   }
   // The file is attached after the first artwork has loaded, so it never delays the curtain.
-  const load = () => { if (audio && !audio.getAttribute('src')) audio.src = src; };
+  // ?v= follows the song's contents, so replacing the file reaches phones that cached the old one.
+  const load = () => { if (audio && !audio.getAttribute('src')) audio.src = VERSION ? `${src}?v=${VERSION}` : src; };
 
   function render() {
     button.hidden = missing || state === 'off';
