@@ -140,21 +140,27 @@ button { font: inherit; color: inherit; }
 .pages {
   position: absolute;
   inset: 0;
-  perspective: 1800px;
 }
 .page {
   position: absolute;
   inset: 0;
-  transform-origin: 0% 50%; /* the spine is the left edge of the artwork */
-  transform-style: preserve-3d;
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
+  perspective: 1800px;
 }
-.face {
+.pg-bg {
   position: absolute;
   inset: 0;
-  overflow: hidden;
   background: var(--blush-bg);
+}
+/* The paper page / cover board: hinged at its spine (transform-origin set inline). */
+.leaf {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  pointer-events: none;
+}
+.leaf-face {
+  position: absolute;
+  inset: 0;
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
 }
@@ -163,6 +169,44 @@ button { font: inherit; color: inherit; }
   inset: 0;
   opacity: 0;
   pointer-events: none;
+}
+
+/* Printed lines, lifted off the artwork so they can animate in. */
+.tx {
+  position: absolute;
+  height: auto;
+  pointer-events: none;
+  -webkit-user-select: none;
+  user-select: none;
+  --wipe: 118%;
+}
+/* Script is written left → right, Arabic (and the monogram) right → left, with a soft pen edge. */
+.tx--script {
+  -webkit-mask-image: linear-gradient(90deg, #000 calc(var(--wipe) - 18%), transparent var(--wipe));
+  mask-image: linear-gradient(90deg, #000 calc(var(--wipe) - 18%), transparent var(--wipe));
+}
+.tx--arabic, .tx--logo {
+  -webkit-mask-image: linear-gradient(270deg, #000 calc(var(--wipe) - 18%), transparent var(--wipe));
+  mask-image: linear-gradient(270deg, #000 calc(var(--wipe) - 18%), transparent var(--wipe));
+}
+.tx.is-written { -webkit-mask-image: none; mask-image: none; }
+
+/* A glint of light across the oval frame after the monogram is written. */
+.glint {
+  position: absolute;
+  left: 28.5%;
+  top: 33.5%;
+  width: 55%;
+  height: 30%;
+  overflow: hidden;
+  clip-path: ellipse(50% 50% at 50% 50%);
+  pointer-events: none;
+}
+.glint > i {
+  position: absolute;
+  inset: -10% 0;
+  opacity: 0;
+  background: linear-gradient(115deg, rgba(255, 244, 222, 0) 32%, rgba(255, 244, 222, 0.5) 50%, rgba(255, 244, 222, 0) 68%);
 }
 .shade {
   background: linear-gradient(90deg,
@@ -180,13 +224,10 @@ button { font: inherit; color: inherit; }
     rgba(58, 20, 18, 0.85) 0%, rgba(58, 20, 18, 0.42) 18%,
     rgba(58, 20, 18, 0.12) 50%, rgba(58, 20, 18, 0) 100%);
 }
-/* Board thickness on the cover's fore-edge (seen only while it turns). */
+/* Board thickness on the cover's fore-edge (seen only while it turns); placed inline. */
 .edge {
   position: absolute;
-  left: 95.8%;
-  top: 14.4%;
   width: 1.5%;
-  height: 72.2%;
   transform-origin: 0 50%;
   transform: rotateY(90deg);
   background: linear-gradient(90deg, #c8958d, #a86d68 45%, #8c524e);
@@ -361,52 +402,42 @@ button { font: inherit; color: inherit; }
 .half--l::after { right: 0; background: linear-gradient(to left, rgba(92, 38, 34, 0.17), rgba(92, 38, 34, 0)); }
 .half--r::after { left: 0; background: linear-gradient(to right, rgba(92, 38, 34, 0.17), rgba(92, 38, 34, 0)); }
 
-/* Bow: knot centred on the seam at 40% of the stage height, pearl at ~64%.
-   viewBox 200×340 → width 37.1% of the stage, height 35.48% of the stage. */
-.bow {
+/* Pearl strands: pull-cords hanging over the seam from above the top edge to ~62% of the stage.
+   Each rides inside its curtain half, so it slides away with it. Horizontal centring is xPercent -50 (GSAP). */
+.strand {
   position: absolute;
-  left: 31.45%;
-  top: 32.7%;
-  width: 37.1%;
-  height: 35.48%;
+  top: -10%;
+  height: 72%;
+  width: auto;
+  pointer-events: none;
+  opacity: 0;
+  -webkit-user-drag: none;
+}
+.strand--l { left: 87%; } /* centre at 43.5% of the stage */
+.strand--r { left: 13%; } /* centre at 56.5% of the stage */
+
+/* Invisible grab area over both strands (the accessible control). */
+.pull {
+  position: absolute;
+  left: 35%;
+  width: 30%;
+  top: 16%;
+  height: 54%;
   padding: 0;
   border: 0;
-  border-radius: 14px;
+  border-radius: 18px;
   background: none;
   cursor: grab;
   touch-action: none;
   z-index: 2;
 }
-.bow:active { cursor: grabbing; }
-.bow-svg {
-  display: block;
-  width: 100%;
-  height: 100%;
-  overflow: visible;
-  filter: drop-shadow(0 calc(var(--u) * 0.7) calc(var(--u) * 0.9) rgba(84, 32, 30, 0.34));
-}
-.bw-stitch {
-  fill: none;
-  stroke: var(--gold);
-  stroke-width: 1px;
-  stroke-dasharray: 2.4 2.1;
-  vector-effect: non-scaling-stroke;
-  opacity: 0.95;
-}
-.bow-png {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: auto;
-  pointer-events: none;
-  filter: drop-shadow(0 calc(var(--u) * 0.7) calc(var(--u) * 0.9) rgba(84, 32, 30, 0.34));
-}
+.pull:active { cursor: grabbing; }
 
 .pull-hint {
   position: absolute;
   left: 0;
   right: 0;
-  top: 69.5%;
+  top: 67%;
   width: max-content;
   max-width: 92%;
   margin: 0 auto;

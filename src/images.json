@@ -11,6 +11,23 @@
       720,
       900,
       1080
+    ],
+    "leaf": [
+      15.2,
+      14.5,
+      96.2,
+      86
+    ],
+    "text": [
+      {
+        "src": "/images/text/01-cover-0.webp",
+        "w": 267,
+        "h": 338,
+        "kind": "logo",
+        "x": 43.611,
+        "y": 41.146,
+        "width": 24.722
+      }
     ]
   },
   "02-bismillah": {
@@ -18,6 +35,41 @@
       720,
       900,
       1080
+    ],
+    "leaf": [
+      7.4,
+      13.7,
+      92.8,
+      84.5
+    ],
+    "text": [
+      {
+        "src": "/images/text/02-bismillah-0.webp",
+        "w": 425,
+        "h": 111,
+        "kind": "arabic",
+        "x": 32.5,
+        "y": 27.24,
+        "width": 39.352
+      },
+      {
+        "src": "/images/text/02-bismillah-1.webp",
+        "w": 231,
+        "h": 344,
+        "kind": "arabic",
+        "x": 41.019,
+        "y": 35.417,
+        "width": 21.389
+      },
+      {
+        "src": "/images/text/02-bismillah-2.webp",
+        "w": 645,
+        "h": 173,
+        "kind": "arabic",
+        "x": 23.519,
+        "y": 54.74,
+        "width": 59.722
+      }
     ]
   },
   "03-invitation": {
@@ -25,6 +77,86 @@
       720,
       900,
       1080
+    ],
+    "leaf": [
+      5.5,
+      11.2,
+      93.3,
+      83.5
+    ],
+    "text": [
+      {
+        "src": "/images/text/03-invitation-0.webp",
+        "w": 560,
+        "h": 63,
+        "kind": "caps",
+        "x": 35.556,
+        "y": 27.552,
+        "width": 51.852
+      },
+      {
+        "src": "/images/text/03-invitation-1.webp",
+        "w": 286,
+        "h": 40,
+        "kind": "caps",
+        "x": 48.796,
+        "y": 31.771,
+        "width": 26.481
+      },
+      {
+        "src": "/images/text/03-invitation-2.webp",
+        "w": 592,
+        "h": 66,
+        "kind": "caps",
+        "x": 34.537,
+        "y": 34.063,
+        "width": 54.815
+      },
+      {
+        "src": "/images/text/03-invitation-3.webp",
+        "w": 496,
+        "h": 216,
+        "kind": "script",
+        "x": 33.889,
+        "y": 37.76,
+        "width": 45.926
+      },
+      {
+        "src": "/images/text/03-invitation-4.webp",
+        "w": 349,
+        "h": 70,
+        "kind": "caps",
+        "x": 33.611,
+        "y": 47.188,
+        "width": 32.315
+      },
+      {
+        "src": "/images/text/03-invitation-5.webp",
+        "w": 125,
+        "h": 67,
+        "kind": "script",
+        "x": 65,
+        "y": 48.125,
+        "width": 11.574
+      },
+      {
+        "src": "/images/text/03-invitation-6.webp",
+        "w": 537,
+        "h": 221,
+        "kind": "script",
+        "x": 30.741,
+        "y": 52.656,
+        "width": 49.722
+      },
+      {
+        "src": "/images/text/03-invitation-7.webp",
+        "w": 364,
+        "h": 70,
+        "kind": "caps",
+        "x": 33.796,
+        "y": 60.521,
+        "width": 33.704
+      }
     ]
   },
   "04-nikah": {
@@ -32,6 +164,95 @@
       720,
       900,
       1080
+    ],
+    "leaf": [
+      5.5,
+      11.2,
+      93.3,
+      83.5
+    ],
+    "text": [
+      {
+        "src": "/images/text/04-nikah-0.webp",
+        "w": 464,
+        "h": 228,
+        "kind": "title",
+        "x": 37.5,
+        "y": 27.24,
+        "width": 42.963
+      },
+      {
+        "src": "/images/text/04-nikah-1.webp",
+        "w": 451,
+        "h": 64,
+        "kind": "caps",
+        "x": 37.963,
+        "y": 40.208,
+        "width": 41.759
+      },
+      {
+        "src": "/images/text/04-nikah-2.webp",
+        "w": 370,
+        "h": 50,
+        "kind": "caps",
+        "x": 41.667,
+        "y": 44.115,
+        "width": 34.259
+      },
+      {
+        "src": "/images/text/04-nikah-3.webp",
+        "w": 327,
+        "h": 34,
+        "kind": "caps",
+        "x": 43.148,
+        "y": 47.813,
+        "width": 30.278
+      },
+      {
+        "src": "/images/text/04-nikah-4.webp",
+        "w": 486,
+        "h": 51,
+        "kind": "caps",
+        "x": 36.481,
+        "y": 51.406,
+        "width": 45
+      },
+      {
+        "src": "/images/text/04-nikah-5.webp",
+        "w": 148,
+        "h": 34,
+        "kind": "caps",
+        "x": 50.556,
+        "y": 54.167,
+        "width": 13.704
+      },
+      {
+        "src": "/images/text/04-nikah-6.webp",
+        "w": 90,
+        "h": 50,
+        "kind": "caps",
+        "x": 53.241,
+        "y": 57.24,
+        "width": 8.333
+      },
+      {
+        "src": "/images/text/04-nikah-7.webp",
+        "w": 401,
+        "h": 45,
+        "kind": "caps",
+        "x": 38.889,
+        "y": 60.729,
+        "width": 37.13
+      },
+      {
+        "src": "/images/text/04-nikah-8.webp",
+        "w": 244,
+        "h": 38,
+        "kind": "caps",
+        "x": 44.907,
+        "y": 63.281,
+        "width": 22.593
+      }
     ]
   },
   "05-reception": {
@@ -39,6 +260,86 @@
       720,
       900,
       1080
+    ],
+    "leaf": [
+      5.5,
+      11.2,
+      93.3,
+      83.5
+    ],
+    "text": [
+      {
+        "src": "/images/text/05-reception-0.webp",
+        "w": 561,
+        "h": 231,
+        "kind": "title",
+        "x": 35.556,
+        "y": 27.24,
+        "width": 51.944
+      },
+      {
+        "src": "/images/text/05-reception-1.webp",
+        "w": 552,
+        "h": 64,
+        "kind": "caps",
+        "x": 33.333,
+        "y": 40.208,
+        "width": 51.111
+      },
+      {
+        "src": "/images/text/05-reception-2.webp",
+        "w": 370,
+        "h": 50,
+        "kind": "caps",
+        "x": 41.667,
+        "y": 44.115,
+        "width": 34.259
+      },
+      {
+        "src": "/images/text/05-reception-3.webp",
+        "w": 347,
+        "h": 35,
+        "kind": "caps",
+        "x": 42.037,
+        "y": 48.542,
+        "width": 32.13
+      },
+      {
+        "src": "/images/text/05-reception-4.webp",
+        "w": 386,
+        "h": 35,
+        "kind": "caps",
+        "x": 39.63,
+        "y": 51.667,
+        "width": 35.741
+      },
+      {
+        "src": "/images/text/05-reception-5.webp",
+        "w": 90,
+        "h": 50,
+        "kind": "caps",
+        "x": 53.241,
+        "y": 55.052,
+        "width": 8.333
+      },
+      {
+        "src": "/images/text/05-reception-6.webp",
+        "w": 438,
+        "h": 55,
+        "kind": "caps",
+        "x": 36.574,
+        "y": 58.75,
+        "width": 40.556
+      },
+      {
+        "src": "/images/text/05-reception-7.webp",
+        "w": 509,
+        "h": 41,
+        "kind": "caps",
+        "x": 31.667,
+        "y": 62.187,
+        "width": 47.13
+      }
     ]
   },
   "06-awaiting": {
@@ -46,6 +347,32 @@
       720,
       900,
       1080
+    ],
+    "leaf": [
+      7.4,
+      13.7,
+      92.8,
+      84.5
+    ],
+    "text": [
+      {
+        "src": "/images/text/06-awaiting-0.webp",
+        "w": 580,
+        "h": 72,
+        "kind": "caps",
+        "x": 26.389,
+        "y": 41.146,
+        "width": 53.704
+      },
+      {
+        "src": "/images/text/06-awaiting-1.webp",
+        "w": 688,
+        "h": 223,
+        "kind": "script",
+        "x": 20,
+        "y": 45.938,
+        "width": 63.704
+      }
     ]
   },
   "07-back-cover": {
@@ -54,5 +381,17 @@
       900,
       941
     ]
+  },
+  "strands": {
+    "l": {
+      "src": "/images/strand-l.webp",
+      "w": 126,
+      "h": 1350
+    },
+    "r": {
+      "src": "/images/strand-r.webp",
+      "w": 126,
+      "h": 1349
+    }
   }
 }

@@ -43,11 +43,12 @@ const curtain = createCurtain({
   reduced,
   zoom: book.zoom,
   dim: book.dim,
-  onUntie: (knot) => {
+  onUntie: (ends) => {
     music.play(); // synchronous: still inside the pull / tap gesture
-    sparkles.burst(knot.x, knot.y);
+    ends.forEach((p) => sparkles.burst(p.x, p.y));
     setBackdrop(CONFIG.pages[0].id);
   },
+  onReveal: () => book.intro(),
   onOpened,
 });
 
@@ -147,14 +148,15 @@ async function boot() {
   gsap.to(bar, { scaleX: 1, duration: 0.25, overwrite: true });
   gsap.to(ui.loader, { autoAlpha: 0, duration: 0.6, delay: 0.15, ease: 'sine.inOut', onComplete: () => ui.loader.remove() });
 
-  // Then the cover, the rest of the book, the backdrops and the song, in the background.
+  // Then the pearl strands, the cover, the rest of the book, the backdrops and the song.
   await afterFirstPaint();
+  curtain.load();
   book.load();
   ui.backdrop.querySelectorAll('img[data-src]').forEach((img) => { img.src = img.dataset.src; img.removeAttribute('data-src'); });
   music.load();
 
-  // The ribbon can be pulled once every page is decoded (or after a generous timeout).
-  const rest = Promise.all(book.images.map(decode));
+  // The strings can be pulled once every page and its text is decoded (or after a generous timeout).
+  const rest = Promise.all(book.lazy.map(decode));
   await Promise.race([rest, new Promise((r) => setTimeout(r, 15000))]);
   curtain.setReady();
 }

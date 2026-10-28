@@ -2,14 +2,54 @@
 // scroll. Gestures (swipe, wheel, keys) are converted into exactly one page per gesture
 // by driving the scroll position ourselves, so the page follows the finger and always
 // comes to rest flat on a page.
+//
+// Each page is two layers of the same (text-free) artwork: the background, with a hole where
+// the paper page sits, and the "leaf" — just the paper page (or cover board), hinged at the
+// spine — which carries the animated text and is the only thing that turns.
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { CONFIG } from './config.js';
+import manifest from './images.json';
 import { pictureHTML, loadPicture } from './stage.js';
+import { createPageText } from './pagetext.js';
 
 const VISIBLE = 0.84; // share of a flip spent on 0° → -90°; the back half happens off-stage
 const PERSPECTIVE = 1800;
 const clamp = (min, max, v) => Math.min(max, Math.max(min, v));
+
+// The background keeps everything except the leaf: a rectangle with a rectangular hole.
+const holeClip = ([l, t, r, b]) =>
+  `polygon(evenodd, 0 0, 100% 0, 100% 100%, 0 100%, 0 0, ${l}% ${t}%, ${r}% ${t}%, ${r}% ${b}%, ${l}% ${b}%, ${l}% ${t}%)`;
+const leafClip = ([l, t, r, b]) => `inset(${t}% ${100 - r}% ${100 - b}% ${l}%)`;
+
+function textHTML(lines = []) {
+  return lines.map((l) => `<img class="tx tx--${l.kind}" data-kind="${l.kind}" data-src="${l.src}" alt="" width="${l.w}" height="${l.h}"`
+    + ` style="left:${l.x}%;top:${l.y}%;width:${l.width}%" draggable="false" aria-hidden="true">`).join('');
+}
+
+function pageHTML(p, i, N) {
+  const m = manifest[p.id];
+  const art = (alt) => pictureHTML(p.id, alt, { deferred: true, priority: i === 0 ? 'high' : 'low' });
+  if (!m.leaf) {
+    return `<div class="page" style="z-index:${N + 1 - i}"><div class="pg-bg">${art(p.alt)}</div></div>`;
+  }
+  const [l, t, r, b] = m.leaf;
+  return `
+    <div class="page${i === 0 ? ' page--cover' : ''}" style="z-index:${N + 1 - i}">
+      <div class="pg-bg" style="clip-path:${holeClip(m.leaf)}">${art(p.alt)}</div>
+      <div class="leaf" style="transform-origin:${l}% 50%">
+        <div class="leaf-face" style="clip-path:${leafClip(m.leaf)}">
+          ${art('')}
+          ${textHTML(m.text)}
+          ${i === 0 ? '<i class="glint" aria-hidden="true"><i></i></i>' : ''}
+          ${i > 0 ? '<i class="cast"></i>' : ''}
+          <i class="shade" style="left:${l}%;width:${r - l}%"></i>
+          <i class="gloss" style="left:${l}%;width:${r - l}%"></i>
+        </div>
+        ${i === 0 ? `<i class="edge" style="left:${r}%;top:${t}%;height:${b - t}%"></i>` : ''}
+      </div>
+    </div>`;
+}
 
 export function createBook({ reduced }) {
   const pagesCfg = CONFIG.pages;
@@ -20,17 +60,7 @@ export function createBook({ reduced }) {
     <div class="frame">
       <div class="book-zoom">
         <div class="stage">
-          <div class="pages">
-            ${pagesCfg.map((p, i) => `
-            <div class="page${i === 0 ? ' page--cover' : ''}" style="z-index:${N + 1 - i}">
-              <div class="face">
-                ${pictureHTML(p.id, p.alt, { deferred: true, priority: i === 0 ? 'high' : 'low' })}
-                ${i > 0 ? '<i class="cast"></i>' : ''}
-                ${i < N ? '<i class="shade"></i><i class="gloss"></i>' : ''}
-              </div>
-              ${i === 0 ? '<i class="edge"></i>' : ''}
-            </div>`).join('')}
-          </div>
+          <div class="pages">${pagesCfg.map((p, i) => pageHTML(p, i, N)).join('')}</div>
           <div class="shimmer-wrap" aria-hidden="true"><i class="shimmer"></i></div>
           <div class="bc-slot"></div>
         </div>
@@ -39,9 +69,14 @@ export function createBook({ reduced }) {
     </div>`;
 
   const pages = [...root.querySelectorAll('.page')];
-  const images = pages.map((p) => p.querySelector('img'));
+  const leaves = pages.map((p) => p.querySelector('.leaf'));
+  const bgs = pages.map((p) => p.querySelector('.pg-bg'));
+  const leafRects = pagesCfg.map((p) => manifest[p.id].leaf);
+  const images = [...root.querySelectorAll('.pg-bg img')];
+  const lazy = [...root.querySelectorAll('.page img')]; // backgrounds, leaves and text layers
   const zoom = root.querySelector('.book-zoom');
   const dim = root.querySelector('.dim');
+  const text = createPageText(pages, { reduced });
   if (!reduced) gsap.set(zoom, { scale: 1.08 });
 
   let tl, st;
@@ -51,6 +86,7 @@ export function createBook({ reduced }) {
   let navTween = null;
   let atRest = true;
   let lastRest = 0;
+  let lastTop = 0;
   const handlers = { arrive: [], depart: [], move: [] };
   const emit = (type, v) => handlers[type].forEach((fn) => fn(v));
 
@@ -58,49 +94,53 @@ export function createBook({ reduced }) {
   function buildTimeline() {
     tl = gsap.timeline({ paused: true, defaults: { ease: 'none' }, onUpdate: sync });
     for (let i = 0; i < N; i++) {
-      const page = pages[i];
       if (reduced) {
-        tl.to(page, { autoAlpha: 0, duration: 1 }, i); // crossfade instead of a 3D turn
+        tl.to(pages[i], { autoAlpha: 0, duration: 1 }, i); // crossfade instead of a 3D turn
         continue;
       }
-      const shade = page.querySelector('.shade');
-      const gloss = page.querySelector('.gloss');
+      const leaf = leaves[i];
+      const shade = leaf.querySelector('.shade');
+      const gloss = leaf.querySelector('.gloss');
       const heavy = i === 0; // the cover board turns with more weight
 
-      tl.fromTo(page, { rotationY: 0 }, { rotationY: -90, duration: VISIBLE, ease: heavy ? 'power2.inOut' : 'sine.inOut' }, i)
-        .to(page, { rotationY: -180, duration: 1 - VISIBLE }, i + VISIBLE)
-        .fromTo(page, { z: 0 }, { z: 30, duration: 0.5, ease: 'sine.out' }, i)
-        .to(page, { z: 0, duration: 0.5, ease: 'sine.in' }, i + 0.5)
+      tl.fromTo(leaf, { rotationY: 0 }, { rotationY: -90, duration: VISIBLE, ease: heavy ? 'power2.inOut' : 'sine.inOut' }, i)
+        .to(leaf, { rotationY: -180, duration: 1 - VISIBLE }, i + VISIBLE)
+        .fromTo(leaf, { z: 0 }, { z: 30, duration: 0.5, ease: 'sine.out' }, i)
+        .to(leaf, { z: 0, duration: 0.5, ease: 'sine.in' }, i + 0.5)
         // Paper curve: the turning page darkens toward the spine, a highlight band sweeps across it.
         .fromTo(shade, { opacity: 0 }, { opacity: 0.45, duration: VISIBLE, ease: 'sine.in' }, i)
         .fromTo(gloss, { xPercent: 70 }, { xPercent: -80, duration: VISIBLE }, i)
         .fromTo(gloss, { opacity: 0 }, { opacity: 0.5, duration: VISIBLE * 0.45, ease: 'sine.out' }, i)
-        .to(gloss, { opacity: 0, duration: VISIBLE * 0.55, ease: 'sine.in' }, i + VISIBLE * 0.45);
+        .to(gloss, { opacity: 0, duration: VISIBLE * 0.55, ease: 'sine.in' }, i + VISIBLE * 0.45)
+        // The surroundings (lace, flowers, the rest of the book) ease over to the next page's.
+        .fromTo(bgs[i], { opacity: 1 }, { opacity: 0, duration: 1, ease: 'sine.inOut' }, i);
     }
   }
 
   // Shadow cast on the page underneath: it hugs the projected fore-edge of the turning
-  // page (spine side) and fades as the page stands up and leaves.
+  // leaf and fades as the leaf stands up and leaves.
   const casts = pages.map((p) => p.querySelector('.cast'));
   let castOn = null;
-  let pageW = 0; // cached on refresh so the frame loop never reads layout
+  let stageW = 0; // cached on refresh so the frame loop never reads layout
   function placeCast(top, turning) {
     const cast = turning ? casts[top + 1] : null;
     if (castOn && castOn !== cast) castOn.style.opacity = '0';
     castOn = cast;
     if (!cast) return;
-    const page = pages[top];
-    const deg = -gsap.getProperty(page, 'rotationY');
+    const leaf = leaves[top];
+    const deg = -gsap.getProperty(leaf, 'rotationY');
     if (deg >= 90) { cast.style.opacity = '0'; return; }
-    const W = pageW || (pageW = page.offsetWidth);
+    const W = stageW || (stageW = pages[0].offsetWidth);
+    const [l, , r] = leafRects[top];
+    const hinge = (l / 100) * W, width = ((r - l) / 100) * W;
     const a = (deg * Math.PI) / 180;
-    const s = PERSPECTIVE / (PERSPECTIVE - (W * Math.sin(a) + gsap.getProperty(page, 'z')));
-    const edge = W / 2 + (W * Math.cos(a) - W / 2) * s;
+    const s = PERSPECTIVE / (PERSPECTIVE - (width * Math.sin(a) + gsap.getProperty(leaf, 'z')));
+    const edge = W / 2 + (hinge + width * Math.cos(a) - W / 2) * s;
     cast.style.transform = `translate3d(${edge.toFixed(1)}px,0,0)`;
     cast.style.opacity = String(0.5 * Math.min(1, (90 - deg) / 30) * Math.min(1, deg / 6));
   }
 
-  // Only the top two pages are painted; only the turning page is promoted.
+  // Only the top two pages are painted; only the turning leaf is promoted.
   const layerState = pages.map(() => ({ vis: null, wc: null }));
   function sync() {
     const t = tl.time();
@@ -112,14 +152,25 @@ export function createBook({ reduced }) {
         const vis = j === top || j === top + 1;
         if (s.vis !== vis) { p.style.visibility = vis ? '' : 'hidden'; s.vis = vis; }
         const wc = turning && j === top;
-        if (s.wc !== wc) { p.style.willChange = wc ? 'transform' : ''; s.wc = wc; }
+        if (s.wc !== wc && leaves[j]) { leaves[j].style.willChange = wc ? 'transform' : ''; s.wc = wc; }
       });
       placeCast(top, turning);
+    }
+    // Passing over a page without stopping (a jump via the pearls): it turns with its text printed.
+    if (top !== lastTop) {
+      lastTop = top;
+      if (turning) text.showNow(top);
     }
     emit('move', t);
     const r = Math.round(t);
     if (Math.abs(t - r) < 1e-3) {
-      if (!atRest || r !== lastRest) { atRest = true; lastRest = r; emit('arrive', r); }
+      if (!atRest || r !== lastRest) {
+        atRest = true;
+        lastRest = r;
+        text.resetAfter(r);
+        if (r > 0) text.play(r);
+        emit('arrive', r);
+      }
     } else if (atRest && Math.abs(t - lastRest) > 0.01) {
       atRest = false;
       emit('depart', lastRest);
@@ -227,6 +278,17 @@ export function createBook({ reduced }) {
     step(dir);
   }
 
+  // ── cover intro: the monogram is written in, then a glint crosses the oval ─────
+  function intro() {
+    const glint = leaves[0]?.querySelector('.glint > i');
+    text.play(0, {
+      onLogo: () => {
+        if (reduced || !glint) return;
+        gsap.fromTo(glint, { xPercent: -120, opacity: 1 }, { xPercent: 120, duration: 1.5, ease: 'sine.inOut', onComplete: () => gsap.set(glint, { opacity: 0 }) });
+      },
+    });
+  }
+
   // ── public ──────────────────────────────────────────────────────────────────
   function setup() {
     buildTimeline();
@@ -247,7 +309,7 @@ export function createBook({ reduced }) {
       if (Math.abs(p - Math.round(p)) > 0.002) goTo(Math.round(p), { duration: reduced ? 0.4 : 0.7 });
     });
     ScrollTrigger.addEventListener('refresh', () => {
-      pageW = pages[0].offsetWidth;
+      stageW = pages[0].offsetWidth;
       if (!dragging && !navTween) window.scrollTo(0, scrollFor(index));
     });
     sync();
@@ -264,6 +326,7 @@ export function createBook({ reduced }) {
     N,
     pages,
     images,
+    lazy,
     zoom,
     dim,
     root,
@@ -271,7 +334,13 @@ export function createBook({ reduced }) {
     backSlot: root.querySelector('.bc-slot'),
     setup,
     goTo,
-    load() { images.forEach(loadPicture); }, // cover first (high priority), then the pages
+    intro,
+    // Cover first (high priority, earliest in the DOM), then the pages and their text.
+    load() {
+      lazy.forEach((img) => {
+        if (img.classList.contains('tx')) { img.src = img.dataset.src; img.removeAttribute('data-src'); } else loadPicture(img);
+      });
+    },
     enable() { enabled = true; },
     get index() { return index; },
     on(type, fn) { handlers[type].push(fn); },
