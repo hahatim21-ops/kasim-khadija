@@ -108,15 +108,15 @@
     "widths": [
       720,
       900,
-      1080
+      944
     ],
     "files": {
-      "720": "/images/05-nikah-720.200b906b.webp",
-      "900": "/images/05-nikah-900.87fcc101.webp",
-      "1080": "/images/05-nikah-1080.976e436e.webp"
+      "720": "/images/05-nikah-720.982d3872.webp",
+      "900": "/images/05-nikah-900.32e2f1bb.webp",
+      "944": "/images/05-nikah-944.b2caac3c.webp"
     },
-    "jpg": "/images/05-nikah-1080.98788e1a.jpg",
-    "blur": "/images/05-nikah-blur.a0fe14fd.jpg",
+    "jpg": "/images/05-nikah-944.eab0d4fc.jpg",
+    "blur": "/images/05-nikah-blur.fb8d4cb7.jpg",
     "leaf": [
       5.5,
       11.2,
@@ -128,15 +128,15 @@
     "widths": [
       720,
       900,
-      1080
+      943
     ],
     "files": {
-      "720": "/images/06-reception-720.09e0a237.webp",
-      "900": "/images/06-reception-900.f18440c3.webp",
-      "1080": "/images/06-reception-1080.2a8d08dc.webp"
+      "720": "/images/06-reception-720.c8681ccb.webp",
+      "900": "/images/06-reception-900.bdda428d.webp",
+      "943": "/images/06-reception-943.dff13a66.webp"
     },
-    "jpg": "/images/06-reception-1080.b478503e.jpg",
-    "blur": "/images/06-reception-blur.32ea6212.jpg",
+    "jpg": "/images/06-reception-943.764ebf64.jpg",
+    "blur": "/images/06-reception-blur.774eb299.jpg",
     "leaf": [
       5.5,
       11.2,

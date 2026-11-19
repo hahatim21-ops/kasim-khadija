@@ -27,8 +27,8 @@ const MAP = {
   '02-bismillah': '3.JPG.jpeg',
   '03-duniya': 'fid-duniya-wal-akhirah.jpg',
   '04-invitation': 'Khadija  Kasim - 4.JPG.jpeg',
-  '05-nikah': 'Khadija  Kasim - 5.JPG.jpeg',
-  '06-reception': 'Khadija  Kasim - 6.JPG.jpeg',
+  '05-nikah': 'nikah-new.png',
+  '06-reception': 'reception-new.png',
   '07-awaiting': '7.JPG.jpeg',
   '08-back-cover': '8.PNG',
 };
